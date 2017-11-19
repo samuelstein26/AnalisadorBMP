@@ -49,9 +49,6 @@ int verificaBMP(char b, char m) {
 }
 
 int procurador(int t, int j, int operacao, int *alturaFim, char *linhaDeAnalise) {
-	//apenas para testar
-	FILE *uu= fopen ("posicao.txt", "w+");
-
 	int pilha[ALTURA * LARGURA * 2];
 	int alturaFim2, alturaInicio2;
 	int linha, coluna, contadorNo = 0;
@@ -59,12 +56,12 @@ int procurador(int t, int j, int operacao, int *alturaFim, char *linhaDeAnalise)
 	int alturaInicio = 0;
 	short yCima = 0, yBaixo = 0, xEsquerdo = 0, xDireito = 0, xMedio = 0,
 			yMedio = 0;
-	char posicaoNo[30] = " ";
+	char posicaoNo[100] = " ";
 	char numm[10];
 
 	do {
 		if (matrizPixel[t][j] == 1) {
-			matrizPixel[t][j] = 2;
+			matrizPixel[t][j] = 8;
 			linha = t;
 			coluna = j;
 			yCima = t, yBaixo = t, xEsquerdo = j, xDireito = j;
@@ -75,9 +72,8 @@ int procurador(int t, int j, int operacao, int *alturaFim, char *linhaDeAnalise)
 				if (matrizPixel[t + 1][j] == 1) { //para baixo
 					if (operacao == 1 && (t + 1) > alturaInicio) {
 						alturaInicio = t + 1;
-						//printf("alturaInicio: %d\n", alturaInicio);
 					}
-					matrizPixel[t + 1][j] = 2;
+					matrizPixel[t + 1][j] = 4;
 					pilha[contadorPilha] = t + 1;
 					pilha[contadorPilha + 1] = j;
 					contadorPilha += 2;
@@ -97,7 +93,6 @@ int procurador(int t, int j, int operacao, int *alturaFim, char *linhaDeAnalise)
 					}
 				}
 				if (matrizPixel[t][j + 1] == 1 && (j + 1) < LARGURA) { //para direita
-					//printf("Direita\n");
 					matrizPixel[t][j + 1] = 2;
 					pilha[contadorPilha] = t;
 					pilha[contadorPilha + 1] = j + 1;
@@ -110,7 +105,6 @@ int procurador(int t, int j, int operacao, int *alturaFim, char *linhaDeAnalise)
 				if (matrizPixel[t - 1][j] == 1) { //para cima
 					if (operacao == 2 && (t - 1) < *alturaFim) {
 						*alturaFim = t - 1;
-						//printf("t-1: %d\n", t-1);
 					}
 					matrizPixel[t - 1][j] = 2;
 					pilha[contadorPilha] = t - 1;
@@ -122,44 +116,47 @@ int procurador(int t, int j, int operacao, int *alturaFim, char *linhaDeAnalise)
 					}
 				}
 				if (contadorPilha >= 0) {
-					if (contadorPixPilha > 35 && achouNo == false
-							&& operacao == 3) {
+					if (contadorPixPilha > 35 && achouNo == false && operacao == 3) {
 						achouNo = true;
 					}
 					t = pilha[contadorPilha - 2];
 					j = pilha[contadorPilha - 1];
-					if (/*operacao == 2 && (*/t > LARGURA/**alturaFim*/ || j < 0){
+					if (t > LARGURA || j < 0){
+						//printf("Erro: Estouro de matriz.");
 						break;
 					}
-					fprintf(uu, "T: %d J: %d\n", t,j);
 					contadorPilha -= 2;
 				}
-			}
+			}//fim while
+
 			if (achouNo == true) {
 				contadorNo++;
+				//contadorPilha=0;
 				achouNo = false;
 				yMedio = ((yBaixo + yCima) / 2);
+				yMedio = ALTURA - yMedio;
 				xMedio = ((xEsquerdo + xDireito) / 2) + 1;
-				sprintf(numm, "%i", yMedio);
+				sprintf(numm, "%i", xMedio);
 				strcat(posicaoNo, numm);
 				strcat(posicaoNo, " ");
-				sprintf(numm, "%i", xMedio);
+				sprintf(numm, "%i", yMedio);
 				strcat(posicaoNo, numm);
 				strcat(posicaoNo, " ");
 			}
 			contadorPixPilha = 0;
+			contadorPilha=0;
 
 			if (operacao == 3) {
 				t = linha;
 				j = coluna;
 			}
-		}
+		}// fim if (matrizPixel[t][j] == 1)
+
 		++j;
 		if (j == (LARGURA - 1)) {
 			t++;
 			j = 0;
 		}
-		fclose(uu);
 	} while (operacao == 3 && t < *alturaFim);
 
 	if (operacao == 1) {
@@ -191,19 +188,15 @@ void analiseImagem(int posicaoFimMadeira, char *linhaDeAnalise) {
 	char numm[10];
 
 	//procurando o fim da Imagem na matriz
-	//printf("PosicaoFimMadeira: %d\n", posicaoFimMadeira);
 	fim = procurador(posicaoFimMadeira, 0, 2, &posicaoFimMadeira, linhaDeAnalise);
-	//printf("Fim: %d", fim);
 
 	//procurando o inicio da Imagem
 	for(aux=0; aux<LARGURA; aux++){
 		alt2= ALTURA;
 		if (matrizPixel[0][aux] == 1){
-			//printf("%d\n", aux);
 			inicio = procurador(0, aux, 1, &alt2, linhaDeAnalise) - 1;
 			if (inicio < auxInicio){
 				auxInicio = inicio;
-				//printf("AuxInicio: %d", auxInicio);
 			}
 		}
 	}
@@ -212,10 +205,9 @@ void analiseImagem(int posicaoFimMadeira, char *linhaDeAnalise) {
 	strcat(linhaDeAnalise, " ");
 
 	//procurando a quantidade de nos
-	//inicio=
-	fim= ALTURA - fim;
-	//printf("Fim: %d\n", fim);
-	int qtdNos = procurador(fim, 0, 3, &inicio, linhaDeAnalise);
+	fim= ALTURA - fim - 1;
+	inicio= ALTURA - inicio;
+	int qtdNos = procurador(inicio == ALTURA?0:inicio, 0, 3, &fim, linhaDeAnalise);
 }
 
 int montadoMatriz(FILE *imagem) {
@@ -282,6 +274,7 @@ int main(void) {
 	DIR *diretorio;
 	BITMAP a2;
 	FILE *imagem;
+	FILE *arqSaida = fopen("Analise.txt", "w+");
 	struct dirent *lsdir;
 
 	printf("Digite o arquivo que deseja analisar: ");
@@ -290,8 +283,8 @@ int main(void) {
 	scanf("%s", nomeArquivo);
 	strcpy(auxNomeArquivo, nomeArquivo);
 	fflush(stdin);
-	//clock_t end, start;
-	//start = clock();
+	clock_t end, start;
+	start = clock();
 
 	diretorio = opendir(nomeArquivo);
 
@@ -307,36 +300,35 @@ int main(void) {
 			strcat(linhaDeAnalise, " ");
 			int posicaoFimMadeira = montadoMatriz(imagem);
 			analiseImagem(posicaoFimMadeira, linhaDeAnalise);
-			printf("%s\n", linhaDeAnalise);
+			fprintf(arqSaida, "%s\n", linhaDeAnalise);
 		}
 		strcpy(auxNomeArquivo, nomeArquivo);
 		fclose(imagem);
 	}
 
-	//end = clock();
-	//printf("Tempo gasto: %4.0f ms\n\n",
-	//		1000 * (double) (end - start) / (double) (CLOCKS_PER_SEC));
+	fclose(arqSaida);
+	end = clock();
+	printf("Tempo gasto: %4.0f ms\n\n", 1000 * (double) (end - start) / (double) (CLOCKS_PER_SEC));
 
 	//teste
-	FILE *w = fopen("complementoMatriz.txt", "w+");
-	FILE *we= fopen("complementoImagem.txt", "w+");
-	short k, l;
-	for (k = 0; k < 512; k++) {
-		for (l = 0; l < 488; l++) {
-			fprintf(w, "%hd", matrizPixel[k][l]);
-		}
-		fprintf(w, "%c", '\n');
-	}
-	for (k = 511; k >= 0; k--) {
-		for (l = 0; l < 488; l++) {
-			fprintf(we, "%hd", matrizPixel[k][l]);
-		}
-		fprintf(we, "%c", '\n');
-	}
-
-	fclose(w);
-
-	fclose(we);
+//	FILE *w = fopen("complementoMatriz.txt", "w+");
+//	FILE *we= fopen("complementoImagem.txt", "w+");
+//	short k, l;
+//	for (k = 0; k < 512; k++) {
+//		for (l = 0; l < 488; l++) {
+//			fprintf(w, "%hd", matrizPixel[k][l]);
+//		}
+//		fprintf(w, "%c", '\n');
+//	}
+//	for (k = 511; k >= 0; k--) {
+//		for (l = 0; l < 488; l++) {
+//			fprintf(we, "%hd", matrizPixel[k][l]);
+//		}
+//		fprintf(we, "%c", '\n');
+//	}
+//
+//	fclose(w);
+//	fclose(we);
 
 	return EXIT_SUCCESS;
 }
