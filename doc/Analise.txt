@@ -1,10 +1,8 @@
-A estrutura dessa arquivo de análise é o nome da imagem, início da madeira, fim da madeira, quantidade de nós e posições (X e Y) dos nós presentes na madeira (se houver).
------------
-```
+A estrutura dessa arquivo de anÃ¡lise Ã© o nome da imagem, inÃ­cio da madeira, fim da madeira, quantidade de nÃ³s e posiÃ§Ãµes (X e Y) dos nÃ³s presentes na madeira (se houver).
+
 st1012.bmp 088 512 02 406 361 425 318 
 st1019.bmp 321 402 00
 st1037.bmp 126 509 02 338 336 399 331 
 st1039.bmp 112 259 00
 st1040.bmp 135 280 01 443 187 
 st1063.bmp 112 223 04 283 215 141 190 431 115 466 115 
-```
